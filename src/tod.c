@@ -26,6 +26,7 @@ bool tod_open (tod_t *tod, tod_args_t *args)
         if (tod_sdl_init () == true && 
             tod_create_window (tod, args->title, args->width, args->height) == true)
         {
+            tod->surface = SDL_GetWindowSurface (tod->window);
             status = true;
         }
     }
@@ -35,16 +36,12 @@ bool tod_open (tod_t *tod, tod_args_t *args)
 
 bool tod_run (tod_t *tod)
 {
-    bool status = false;
-    SDL_Surface *surface;
+    bool status = false;    
 
     if (tod != NULL)
     {
         do
         {
-            surface = SDL_GetWindowSurface (tod->window);
-
-            SDL_FillRect (surface, NULL, SDL_MapRGB (surface->format, 0xFF, 0xFF, 0xFF));
             SDL_UpdateWindowSurface (tod->window);
             SDL_Delay (2000);
         } while (false);
@@ -61,6 +58,8 @@ bool tod_close (tod_t *tod)
 
     if (tod != NULL)
     {
+        SDL_DestroyWindow (tod->window);
+        SDL_Quit ();
         memset (tod, 0, sizeof (tod_t));
         status = true;
     }
@@ -93,4 +92,12 @@ static bool tod_create_window (tod_t *tod, const char *title, uint16_t width, ui
         status = true;
 
     return status;
+}
+
+void tod_set_window_image (tod_t *tod, SDL_Surface *surface)
+{
+    if (tod != NULL && surface != NULL)
+    {
+        SDL_BlitSurface (surface, NULL, tod->surface, NULL);
+    }
 }

@@ -16,6 +16,7 @@ target_sources(tod
     PUBLIC 
     ${CMAKE_CURRENT_LIST_DIR}/main.c 
     ${CMAKE_CURRENT_LIST_DIR}/src/tod.c 
+    ${CMAKE_CURRENT_LIST_DIR}/src/tod_image.c
     
     )
 
@@ -26,6 +27,6 @@ target_include_directories(tod
 
 target_link_libraries(tod ${GTK_LIBRARIES} SDL2)
 
-# add_custom_command(TARGET cadastro POST_BUILD 
-#                     COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/assets 
-#                     ${CMAKE_BINARY_DIR}/bin/assets) 
+add_custom_command(TARGET tod POST_BUILD 
+                    COMMAND ${CMAKE_COMMAND} -E create_symlink ${CMAKE_SOURCE_DIR}/assets 
+                    ${CMAKE_BINARY_DIR}/bin/assets) 
