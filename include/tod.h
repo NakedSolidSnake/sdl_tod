@@ -9,6 +9,7 @@ typedef struct
 {
     SDL_Window *window;
     SDL_Surface *surface;
+    bool running;
 } tod_t;
 
 typedef struct 
