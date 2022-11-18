@@ -5,6 +5,32 @@ static bool tod_sdl_init (void);
 static bool tod_create_window (tod_t *tod, const char *title, uint16_t width, uint16_t height);
 static void tod_handle_events (tod_t *tod);
 
+typedef struct
+{
+    tod_key_t key;
+    int sdl_key;
+} tod_key_map_t;
+
+typedef struct 
+{
+    tod_key_map_t keys[4];
+    int amount;
+} tod_keys_mapping_t;
+
+static tod_keys_mapping_t mapping = 
+{
+    .keys = 
+    {
+        {.key = tod_key_up,    .sdl_key = SDLK_UP},
+        {.key = tod_key_down,  .sdl_key = SDLK_DOWN},
+        {.key = tod_key_left,  .sdl_key = SDLK_LEFT},
+        {.key = tod_key_right, .sdl_key = SDLK_RIGHT},
+    },
+    .amount = 4
+};
+
+static tod_key_t tod_get_key (int sdl_key);
+
 bool tod_init (tod_t *tod)
 {
     bool status = false;
@@ -114,5 +140,67 @@ static void tod_handle_events (tod_t *tod)
     {
         if (event.type == SDL_QUIT)
             tod->running = false;
+
+        else if (event.type == SDL_KEYDOWN)
+        {
+            if (tod->events.on_press)
+            {
+                tod->events.on_press ((void *)tod, tod_get_key (event.key.keysym.sym));
+            }
+        }
     }
+}
+
+bool tod_add_image (tod_t *tod, tod_image_t image)
+{
+    bool status = false;
+
+    if (tod->images.amount < TOD_IMAGES_AMOUNT)
+    {
+        memcpy (&tod->images.image[tod->images.amount], &image, sizeof (tod_image_t));
+        tod->images.amount++;
+        status = true;
+    }
+
+    return status;
+}
+
+tod_image_t *tod_get_image_by_name (tod_t *tod, const char *name)
+{
+    tod_image_t *image = NULL;
+
+    for (int i = 0; i < tod->images.amount; i++)
+    {
+        if (strcmp (name, tod->images.image[i].name) == 0)
+        {
+            image = &tod->images.image[i];
+            break;
+        }
+    }
+
+    return image;
+}
+
+void tod_set_key_event (tod_t *tod, event_t event)
+{
+    if (tod != NULL && event != NULL)
+    {
+        tod->events.on_press = event;
+    }
+}
+
+static tod_key_t tod_get_key (int sdl_key)
+{
+    tod_key_t key = tod_key_undefined;
+
+    for (int i = 0; i < mapping.amount; i++)
+    {
+        if (sdl_key == mapping.keys[i].sdl_key)
+        {
+            key = mapping.keys[i].key;
+            break;
+        }
+    }
+
+    return key;
 }
